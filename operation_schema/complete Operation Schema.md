@@ -1,0 +1,17 @@
+## Task 2: Complete Operation Schema
+
+| ID | Operation | Pre-condition | Input | Post-conditions |
+| :--- | :--- | :--- | :--- | :--- |
+| **OP-01** | PerformSystemSelfCheck | System is powered on. | Sensor and device status signals | System enters `MONITORING` mode if all essential components pass; stays in fault state otherwise. |
+| **OP-02** | LoadArtifactProfile | System is in `MONITORING` mode; artifact is placed in chamber. | Artifact ID, min/max temp, min/max humidity, max light exposure | Artifact profile and environmental threshold limits are stored in system memory. |
+| **OP-03** | CloseChamberDoor | Chamber door is currently open. | Door status sensor signal (`CLOSED`) | Door status updated to closed; clears path to start active conservation. |
+| **OP-04** | StartConservation | System is in `MONITORING` mode, artifact profile is loaded, and door status is closed. | Start signal / Environmental sensor readings | System state changes to `CONSERVATION_ACTIVE`; environmental control processes start. |
+| **OP-05** | AdjustTemperature | System is in `CONSERVATION_ACTIVE` mode and temperature is out of range. | Current temperature reading, target range | Control command sent to heating/cooling unit; recovery timer initialized. |
+| **OP-06** | AdjustHumidity | System is in `CONSERVATION_ACTIVE` mode and humidity is out of range. | Current humidity reading, target range | Control command sent to humidifier/dehumidifier unit; recovery timer initialized. |
+| **OP-07** | VerifyEnvironmentalRecovery | Temperature or humidity adjustment command was previously issued. | Current sensor readings, recovery timer status | System confirms environmental parameters are inside permitted limits, resets recovery timer, and maintains `CONSERVATION_ACTIVE` mode. |
+| **OP-08** | InitiateProtectionMode | System is in adjustment state and environmental recovery timer expires without success. | Timer timeout flag, current sensor readings | System transitions to `PROTECTION_MODE`, light levels are reduced, secondary controls activate, and an operator alert is generated. |
+| **OP-09** | DetectAndHandleVibration | System is in `CONSERVATION_ACTIVE` mode with an artifact present. | Vibration sensor reading above permitted threshold | Risky control activities are suspended; system enters `VIBRATION_RESPONSE` mode; stabilization timer starts. |
+| **OP-10** | VerifyStabilization | System is in `VIBRATION_RESPONSE` mode and vibration reading is below threshold. | Continuous vibration readings, stabilization timer | System verifies vibration stayed low for the full stabilization duration; returns to `CONSERVATION_ACTIVE` or `MONITORING` mode. |
+| **OP-11** | HandleDoorOpening | System is in `CONSERVATION_ACTIVE` mode. | Door status sensor signal (`OPEN`) | Active conservation processes are immediately suspended; system returns to `MONITORING` mode until door closes and conditions are re-verified. |
+| **OP-12** | SwitchPowerSource | Main power availability signal drops while system is operating. | Power sensor status, emergency power status | System switches seamlessly to emergency power if available; otherwise, logs the incident and enters `SAFE_SHUTDOWN`. |
+| **OP-13** | AuthorizeArtifactRemoval | Artifact is inside; operator requests removal. | Removal request signal | System verifies chamber is safe with no active protection or vibration alerts; unlocks chamber access and permits artifact removal. |
